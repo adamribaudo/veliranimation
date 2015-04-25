@@ -1,23 +1,40 @@
 static int FRAMERATE = 15;
 float t = 0, dt = (float)1/FRAMERATE;
 
-int objSize = 20;
+int objSize = 25;
 int cols = 13;
 int rows = 9;
 int oSize = rows;
+PImage imgRobot;
 Oscillator o[];
-Oscillator mainO;
-float mainRotateAmt = 20;
+int robot1X=-400;
+int robot2X=-600;
+int robot3X=-800;
+int robot4X=-1000;
+int robot5X=-1200;
+
+int barSize = 20;
+int numBars = 18;
+float colorArray1[];
+float colorArray2[];
+float colorArray[];
+float satArray1[];
+float satArray2[];
+float satArray[];
+float sunColorArray[];
+float sunSatArray[];
+
 
 /* @pjs transparent="true"; */
 void setup()
 {
   int inc = 5;
-  size(400, 300, P3D);
+  size(900, 560, P3D);
   o = new Oscillator[oSize];
-  mainO = new Oscillator(mainRotateAmt, 7, 0, "psin");
   float p[] = ha(17, 1);
   int amplitude = objSize*2;
+
+  imgRobot = loadImage("ipadrobot.png");
 
   o[0] = new Oscillator(amplitude, p[0], 0, "sin");
   o[1] = new Oscillator(amplitude, p[1], 0, "sin");
@@ -28,23 +45,69 @@ void setup()
   o[6] = new Oscillator(amplitude, p[6], 0, "sin");
   o[7] = new Oscillator(amplitude, p[7], 0, "sin");
   o[8] = new Oscillator(amplitude, p[8], 0, "sin");
+
+  colorArray1 = ia(numBars/2, .5, .6);
+  colorArray2 = ia(numBars/2, .6, .5);
+  colorArray = concat(colorArray1, colorArray2);
+
+  satArray1 = ia(numBars/2, .6, .9);
+  satArray2 = ia(numBars/2, .9, .6);
+  satArray = concat(satArray1, satArray2);
+
+  //Sunset
+  sunColorArray = ia(numBars, .05, .2);
+  sunSatArray = ia(numBars, .6, .9);
 }
 
 void draw()
 {
-  background(0,0);//background(255, 255, 255, 0);
+  background(0, 0); //background(255, 255, 255, 0);
   lights();
 
+  //paint sunset
+  colorMode(HSB, 1);
+  noStroke();
+  int index;
+  for (int i=0; i<numBars; i++)
+  {
+    index = int((i + t) % numBars);
+    fill(sunColorArray[i], sunSatArray[index], 1);
+    rect(0, i*barSize, width, barSize);
+  }
+
+  //paint waves
+  for (int i=0; i<numBars; i++)
+  {
+    index = abs(int((i - t) % numBars));
+    fill(colorArray[index], satArray[index], 1);
+    rect(0, height/2 + i*barSize, width, barSize);
+  }
+
+translate(0, 0, 1);
+  robot1X++;
+  robot2X++;
+  robot3X++;
+  robot4X++;
+  robot5X++;
+  if (robot1X >= width)robot1X=-112;
+  if (robot2X >= width)robot2X=-112;
+  if (robot3X >= width)robot3X=-112;
+  if (robot4X >= width)robot4X=-112;
+  if (robot5X >= width)robot5X=-112;
+  image(imgRobot, robot1X, 0);
+   image(imgRobot, robot2X, 0);
+   image(imgRobot, robot3X, 0);
+   image(imgRobot, robot4X, 0);
+    image(imgRobot, robot5X, 0);
+
   colorMode(RGB, 255);
-  fill(140, 40, 240);
 
   pushMatrix();
 
-  translate(width/2, 70);
-  translate(0, 0, objSize); //lift above the bg
+  translate(width/2, objSize*7);
+  translate(0, 0, objSize*5); //lift above the bg
 
-  mainO.prime();
-  rotateY(radians(mainO.getValue() - mainRotateAmt/2));
+  rotateY(radians((float)mouseX/width * 90 - 45));
   translate(-cols/2 * objSize, 0);
 
   for (int c=0; c<cols; c++)
@@ -68,8 +131,6 @@ void draw()
         pushMatrix();
         translate(0, r * objSize);
 
-        //rotateZ(radians(float(mouseY) / width * 360));
-
         //box 1
         translate(o[r].getValue(), 0);
 
@@ -79,7 +140,7 @@ void draw()
 
         translate(0, 0, -objSize);
         box(objSize);
-       
+
         popMatrix();
       }
     }
@@ -126,8 +187,6 @@ class Oscillator {
   }
 
   float getValue() {
-
-
     if (this.waveShape.equals("sin")) {
       value = amplitude*sin(TWO_PI/period*(t-timeShift));
     } else if (this.waveShape.equals("psin")) { // positive sine
@@ -197,6 +256,14 @@ float[] ha(int n, float coef) { // harmonic array
   float ra[] = new float[n];
   for (int i=0; i<n; i++) {
     ra[i] = n*coef/(i+1);
+  }
+  return ra;
+}
+
+float[] ia(int n, float f, float l) { // linear interpolation from f to l
+  float ra[] = new float[n];
+  for (int i=0; i<n; i++) {
+    ra[i] = f + i*(l-f)/(n-1);
   }
   return ra;
 }
