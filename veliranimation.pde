@@ -9,9 +9,7 @@ PImage imgRobot;
 Oscillator o[];
 int robot1X=-400;
 int robot2X=-600;
-int robot3X=-800;
-int robot4X=-1000;
-int robot5X=-1200;
+
 
 int barSize = 20;
 int numBars = 18;
@@ -86,19 +84,12 @@ void draw()
 translate(0, 0, 1);
   robot1X++;
   robot2X++;
-  robot3X++;
-  robot4X++;
-  robot5X++;
-  if (robot1X >= width)robot1X=-112;
-  if (robot2X >= width)robot2X=-112;
-  if (robot3X >= width)robot3X=-112;
-  if (robot4X >= width)robot4X=-112;
-  if (robot5X >= width)robot5X=-112;
-  image(imgRobot, robot1X, 0);
-   image(imgRobot, robot2X, 0);
-   image(imgRobot, robot3X, 0);
-   image(imgRobot, robot4X, 0);
-    image(imgRobot, robot5X, 0);
+  if (robot1X >= width + 224)robot1X=-112;
+  if (robot2X >= width + 224 )robot2X=-112;
+  
+  image(imgRobot, robot1X, 300);
+   image(imgRobot, robot2X, 300);
+
 
   colorMode(RGB, 255);
 
